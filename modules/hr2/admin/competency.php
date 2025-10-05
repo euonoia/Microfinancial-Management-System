@@ -10,13 +10,31 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
 // --- Handle Add Competency ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_competency'])) {
-    $code = strtoupper(trim($_POST['code']));
+    // Generate next code automatically
+    $result = $conn->query("SELECT code FROM competencies ORDER BY id DESC LIMIT 1");
+
+    if ($result && $row = $result->fetch_assoc()) {
+        // Extract numeric part (e.g., from "COMP005" get 5)
+        $lastNumber = (int) preg_replace('/\D/', '', $row['code']);
+        $nextNumber = $lastNumber + 1;
+    } else {
+        $nextNumber = 1;
+    }
+
+    // Format code as COMP001, COMP002, etc.
+    $code = 'COMP' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
+    // Gather form inputs
     $title = trim($_POST['title']);
     $description = trim($_POST['description']);
     $group = trim($_POST['competency_group']);
 
-    if ($code !== '' && $title !== '') {
-        $stmt = $conn->prepare("INSERT INTO competencies (code, title, description, competency_group) VALUES (?, ?, ?, ?)");
+    // Insert only if title is not empty
+    if ($title !== '') {
+        $stmt = $conn->prepare("
+            INSERT INTO competencies (code, title, description, competency_group)
+            VALUES (?, ?, ?, ?)
+        ");
         $stmt->bind_param("ssss", $code, $title, $description, $group);
         $stmt->execute();
         $stmt->close();
@@ -25,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_competency'])) {
     header("Location: competency.php");
     exit();
 }
+
 
 // --- Handle Delete Competency ---
 if (isset($_GET['delete'])) {
@@ -132,7 +151,7 @@ $competencies = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             <a href="training.php">Training</a>
             <a href="succession.php">Succession</a>
             <a href="ess.php">ESS</a>
-            <a href="../../logout.php">Logout</a>
+            <a href="logout.php">Logout</a>
         </div>
     </div>
 
@@ -141,8 +160,7 @@ $competencies = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
         <!-- Add Competency Form -->
         <form method="POST">
-            <h3>Add New Competency</h3>
-            <input type="text" name="code" placeholder="Code (e.g. COMP001)" required>
+            <h3>Add New Competency</h3> 
             <input type="text" name="title" placeholder="Title" required>
             <textarea name="description" placeholder="Description (optional)"></textarea>
             <input type="text" name="competency_group" placeholder="Group (e.g. Technical, Leadership)">

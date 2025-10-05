@@ -63,7 +63,7 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             <a href="training.php">Training</a>
             <a href="succession.php">Succession</a>
             <a href="ess.php">ESS</a>
-            <a href="../../logout.php">Logout</a>
+            <a href="logout.php">Logout</a>
         </div>
     </div>
 

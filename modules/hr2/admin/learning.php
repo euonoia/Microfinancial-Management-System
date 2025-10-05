@@ -18,8 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_course'])) {
     $created_by = $_SESSION['user_id'];
 
     if ($title !== '') {
-        $stmt = $conn->prepare("INSERT INTO courses (title, slug, description, content_url, duration_minutes, created_by) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssii", $title, $slug, $description, $content_url, $duration, $created_by);
+        $stmt = $conn->prepare("INSERT INTO courses (title, description, content_url, duration_minutes, created_at) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssii", $title, $description, $content_url, $duration, $created_at);
         $stmt->execute();
         $stmt->close();
     }
@@ -135,7 +135,7 @@ $courses = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             <a href="training.php">Training</a>
             <a href="succession.php">Succession</a>
             <a href="ess.php">ESS</a>
-            <a href="../../logout.php">Logout</a>
+            <a href="logout.php">Logout</a>
         </div>
     </div>
 

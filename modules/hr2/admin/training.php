@@ -12,24 +12,37 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_training'])) {
     $title = trim($_POST['title']);
     $description = trim($_POST['description']);
+    $trainer = trim($_POST['trainer']);
     $start_datetime = $_POST['start_datetime'];
     $end_datetime = $_POST['end_datetime'];
     $location = trim($_POST['location']);
-    $trainer_id = !empty($_POST['trainer_id']) ? intval($_POST['trainer_id']) : null;
     $capacity = intval($_POST['capacity']);
 
+    // --- Generate unique training ID ---
+    $result = $conn->query("SELECT training_id FROM training_sessions ORDER BY id DESC LIMIT 1");
+    if ($result && $result->num_rows > 0) {
+        $lastId = $result->fetch_assoc()['training_id'];
+        $num = (int)filter_var($lastId, FILTER_SANITIZE_NUMBER_INT) + 1;
+    } else {
+        $num = 1;
+    }
+    $training_id = 'TRN-' . str_pad($num, 4, '0', STR_PAD_LEFT);
+
+    // --- Insert new training ---
     if ($title !== '' && $start_datetime !== '') {
         $stmt = $conn->prepare("
-            INSERT INTO training_sessions (title, description, start_datetime, end_datetime, location, trainer_id, capacity)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO training_sessions (training_id, title, description, start_datetime, end_datetime, location, trainer, capacity)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $stmt->bind_param("ssssiii", $title, $description, $start_datetime, $end_datetime, $location, $trainer_id, $capacity);
+        $stmt->bind_param("sssssssi", $training_id, $title, $description, $start_datetime, $end_datetime, $location, $trainer, $capacity);
         $stmt->execute();
         $stmt->close();
     }
+
     header("Location: training.php");
     exit();
 }
+
 
 // --- DELETE TRAINING SESSION ---
 if (isset($_GET['delete'])) {
@@ -40,15 +53,25 @@ if (isset($_GET['delete'])) {
 }
 
 // --- FETCH TRAININGS WITH ATTENDANCE COUNT ---
+// --- FETCH TRAINING SESSIONS ---
 $query = "
-SELECT s.*, COUNT(a.id) AS attendees
-FROM training_sessions s
-LEFT JOIN training_attendance a ON a.session_id = s.id AND a.status = 'attended'
-GROUP BY s.id
-ORDER BY s.start_datetime DESC
+    SELECT 
+        id,
+        training_id,
+        title,
+        description,
+        start_datetime,
+        end_datetime,
+        location,
+        trainer,
+        capacity
+    FROM training_sessions
+    ORDER BY start_datetime DESC
 ";
+
 $result = $conn->query($query);
 $sessions = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+
 
 // --- FETCH TRAINERS (FROM EMPLOYEES TABLE) ---
 $trainers = [];
@@ -144,7 +167,7 @@ if ($res) $trainers = $res->fetch_all(MYSQLI_ASSOC);
             <a href="training.php">Training</a>
             <a href="succession.php">Succession</a>
             <a href="ess.php">ESS</a>
-            <a href="../../logout.php">Logout</a>
+            <a href="logout.php">Logout</a>
         </div>
     </div>
 
@@ -161,15 +184,8 @@ if ($res) $trainers = $res->fetch_all(MYSQLI_ASSOC);
             <label>End Date & Time:</label>
             <input type="datetime-local" name="end_datetime">
             <input type="text" name="location" placeholder="Location">
-            
             <label>Trainer:</label>
-            <select name="trainer_id">
-                <option value="">-- Select Trainer --</option>
-                <?php foreach ($trainers as $t): ?>
-                    <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['name']) ?></option>
-                <?php endforeach; ?>
-            </select>
-
+            <input type="text" name="trainer" placeholder="Trainer Name">
             <input type="number" name="capacity" placeholder="Capacity (optional)">
             <button type="submit" name="add_training">Add Training</button>
         </form>
@@ -193,7 +209,7 @@ if ($res) $trainers = $res->fetch_all(MYSQLI_ASSOC);
                     <?php foreach ($sessions as $s): ?>
                         <tr>
                             <td><?= htmlspecialchars($s['title']) ?></td>
-                            <td><?= htmlspecialchars($s['trainer_id']) ?></td>
+                            <td><?= htmlspecialchars($s['trainer']) ?></td>
                             <td><?= htmlspecialchars($s['start_datetime']) ?></td>
                             <td><?= htmlspecialchars($s['end_datetime']) ?></td>
                             <td><?= htmlspecialchars($s['location']) ?></td>

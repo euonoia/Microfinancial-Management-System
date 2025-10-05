@@ -29,8 +29,8 @@ $tables = [
     'employees' => 'Employees',
     'competencies' => 'Competencies',
     'learning_modules' => 'Learning Modules',
-    'trainings' => 'Trainings',
-    'succession_position' => 'Succession Positions',
+    'training_sessions' => 'Trainings',
+    'succession_positions' => 'Succession Positions',
     'ess_requests' => 'ESS Requests'
 ];
 
