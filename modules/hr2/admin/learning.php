@@ -93,9 +93,10 @@ $courses = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 </head>
 <body>
     <div class="navbar">
-        <div><strong>HR2 Admin</strong></div>
+        <div><strong>HR2 Admin </strong></div>
         <div>
             <a href="dashboard.php">Dashboard</a>
+            <a href="admin_register.php">add ADMIN</a>
             <a href="competency.php">Competency</a>
             <a href="learning.php">Learning</a>
             <a href="training.php">Training</a>
@@ -104,7 +105,6 @@ $courses = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             <a href="logout.php">Logout</a>
         </div>
     </div>
-
     <div class="container">
         <h2>Learning Management</h2>
 

@@ -2,6 +2,17 @@
 session_start();
 include('../../../config/database.php'); // adjust path as needed
 
+// --- Check if there is at least one admin ---
+$adminCheck = $conn->query("SELECT COUNT(*) AS total FROM admin WHERE employee_id IS NOT NULL");
+if ($adminCheck) {
+    $row = $adminCheck->fetch_assoc();
+    if ($row['total'] == 0) {
+        // No admin exists, block access
+        die("Access denied. You must have at least one admin registered to access this page.");
+    }
+}
+$adminCheck->free();
+
 $success = '';
 $error = '';
 
@@ -44,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $check->close();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -115,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="login-link">
-            Already have an account? <a href="admin_login.php">Login here</a>
+            Back to  <a href="dashboard.php">Dashboard</a>
         </div>
     </div>
 </body>

@@ -129,17 +129,18 @@ a.btn-del:hover { text-decoration: underline; }
 </head>
 <body>
 <div class="navbar">
-    <div><strong>HR2 Admin</strong></div>
-    <div>
-        <a href="dashboard.php">Dashboard</a>
-        <a href="competency.php">Competency</a>
-        <a href="learning.php">Learning</a>
-        <a href="training.php">Training</a>
-        <a href="succession.php">Succession</a>
-        <a href="ess.php">ESS</a>
-        <a href="logout.php">Logout</a>
+        <div><strong>HR2 Admin</strong></div>
+        <div>
+            <a href="dashboard.php">Dashboard</a>
+            <a href="admin_register.php">add ADMIN</a>
+            <a href="competency.php">Competency</a>
+            <a href="learning.php">Learning</a>
+            <a href="training.php">Training</a>
+            <a href="succession.php">Succession</a>
+            <a href="ess.php">ESS</a>
+            <a href="logout.php">Logout</a>
+        </div>
     </div>
-</div>
 
 <div class="container">
 <h2>Succession Planning</h2>

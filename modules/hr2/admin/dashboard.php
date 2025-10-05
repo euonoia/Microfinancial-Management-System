@@ -122,9 +122,10 @@ foreach ($tables as $table => $label) {
 </head>
 <body>
     <div class="navbar">
-        <div><strong>HR2 Admin Dashboard</strong></div>
+        <div><strong>HR2 Admin </strong></div>
         <div>
             <a href="dashboard.php">Dashboard</a>
+            <a href="admin_register.php">add ADMIN</a>
             <a href="competency.php">Competency</a>
             <a href="learning.php">Learning</a>
             <a href="training.php">Training</a>
