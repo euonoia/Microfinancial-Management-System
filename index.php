@@ -24,22 +24,7 @@ $stmt->execute();
 $employee = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-// --- Access control ---
-if (!$employee) {
-    echo "<h2 style='color:red;text-align:center;'>Employee record not found.</h2>";
-    echo "<div style='text-align:center; margin-top:20px;'>
-            <a href='logout.php' style='padding:10px 20px; background:#f00; color:#fff; text-decoration:none; border-radius:5px;'>Logout</a>
-          </div>";
-    exit();
-}
 
-if ($employee['role'] !== 'employee') {
-    echo "<h2 style='color:red;text-align:center;'>Access Denied. Employees only.</h2>";
-    echo "<div style='text-align:center; margin-top:20px;'>
-            <a href='logout.php' style='padding:10px 20px; background:#f00; color:#fff; text-decoration:none; border-radius:5px;'>Logout</a>
-          </div>";
-    exit();
-}
 
 // --- Fetch employee info ---
 $stmt = $conn->prepare("
@@ -53,11 +38,7 @@ $stmt->execute();
 $employee = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-// --- Access control ---
-if (!$employee || $employee['role'] !== 'employee') {
-    echo "<h2 style='color:red;text-align:center;'>Access Denied. Employees only.</h2>";
-    exit();
-}
+
 
 
 $employee_id = $employee['employee_id'];
@@ -181,10 +162,11 @@ $stmt->close();
     <div class="navbar">
         <div><strong>HR2 Employee</strong></div>
         <div>
-            <a href="dashboard.php">Dashboard</a>
-            <a href="modules/hr2/competency.php">Competencies</a>
-            <a href="modules/hr2/learning.php">Learning</a>
-            <a href="modules/hr2/training.php">Training</a>
+            <a href="index.php">Dashboard</a>
+            <a href="modules/hr2/user/competency.php">Competencies</a>
+            <a href="modules/hr2/user/learning.php">Learning</a>
+            <a href="modules/hr2/user/training.php">Training</a>
+            <a href="modules/hr2/user/succession.php">Succession</a>
             <a href="modules/hr2/ess.php">ESS</a>
             <a href="logout.php">Logout</a>
         </div>

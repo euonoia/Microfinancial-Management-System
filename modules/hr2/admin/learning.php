@@ -14,15 +14,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_course'])) {
     $description = trim($_POST['description']);
     $content_url = trim($_POST['content_url']);
     $duration = intval($_POST['duration_minutes']);
-    $slug = strtolower(str_replace(' ', '-', $title)) . '-' . rand(100,999);
-    $created_by = $_SESSION['user_id'];
+    $created_at = date('Y-m-d H:i:s');
 
+    // Generate next course_id automatically
+    $result = $conn->query("SELECT course_id FROM courses ORDER BY id DESC LIMIT 1");
+    if ($result && $row = $result->fetch_assoc()) {
+        $lastNumber = (int) preg_replace('/\D/', '', $row['course_id']); // extract numeric part
+        $nextNumber = $lastNumber + 1;
+    } else {
+        $nextNumber = 1;
+    }
+    $course_id = 'COUR' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT); // e.g., COUR001
+
+    // Insert the new course
     if ($title !== '') {
-        $stmt = $conn->prepare("INSERT INTO courses (title, description, content_url, duration_minutes, created_at) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssii", $title, $description, $content_url, $duration, $created_at);
-        $stmt->execute();
+        $stmt = $conn->prepare("
+            INSERT INTO courses (course_id, title, description, content_url, duration_minutes, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        if (!$stmt) {
+            die("Prepare failed: " . $conn->error);
+        }
+
+        $stmt->bind_param("ssssis", $course_id, $title, $description, $content_url, $duration, $created_at);
+
+        if (!$stmt->execute()) {
+            die("Execute failed: " . $stmt->error);
+        }
+
         $stmt->close();
     }
+
     header("Location: learning.php");
     exit();
 }
@@ -52,76 +74,20 @@ $courses = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     <meta charset="UTF-8">
     <title>Learning Management - HR2 Admin</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            margin: 0;
-        }
-        .navbar {
-            background: #1f2937;
-            color: #fff;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar a {
-            color: #fff;
-            text-decoration: none;
-            margin-left: 15px;
-        }
+        body { font-family: Arial, sans-serif; background: #f3f4f6; margin: 0; }
+        .navbar { background: #1f2937; color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar a { color: #fff; text-decoration: none; margin-left: 15px; }
         .navbar a:hover { text-decoration: underline; }
-
-        .container {
-            max-width: 1000px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        h2 {
-            color: #111827;
-            margin-bottom: 20px;
-        }
-        form {
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-        button {
-            background: #2563eb;
-            color: #fff;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #1d4ed8;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-        }
+        .container { max-width: 1000px; margin: 40px auto; background: #fff; border-radius: 10px; padding: 25px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        h2 { color: #111827; margin-bottom: 20px; }
+        form { background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 30px; }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #ccc; }
+        button { background: #2563eb; color: #fff; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #1d4ed8; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
         th { background: #f3f4f6; }
-        a.btn-del {
-            color: red;
-            text-decoration: none;
-        }
+        a.btn-del { color: red; text-decoration: none; }
         a.btn-del:hover { text-decoration: underline; }
     </style>
 </head>
@@ -153,36 +119,38 @@ $courses = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
         </form>
 
         <!-- Courses Table -->
-        <table>
-            <thead>
+        <!-- Courses Table -->
+<table>
+    <thead>
+        <tr>
+            <th>Course Code</th>
+            <th>Title</th>
+            <th>Duration</th>
+            <th>Enrollments</th>
+            <th>Created</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php if (count($courses) > 0): ?>
+            <?php foreach ($courses as $c): ?>
                 <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Duration</th>
-                    <th>Enrollments</th>
-                    <th>Created</th>
-                    <th>Action</th>
+                    <td><?= htmlspecialchars($c['course_id']) ?></td>
+                    <td><?= htmlspecialchars($c['title']) ?></td>
+                    <td><?= htmlspecialchars($c['duration_minutes']) ?> min</td>
+                    <td><?= htmlspecialchars($c['enrolled']) ?></td>
+                    <td><?= htmlspecialchars($c['created_at']) ?></td>
+                    <td>
+                        <a href="?delete=<?= $c['id'] ?>" class="btn-del" onclick="return confirm('Delete this course?')">Delete</a>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                <?php if (count($courses) > 0): ?>
-                    <?php foreach ($courses as $c): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($c['id']) ?></td>
-                            <td><?= htmlspecialchars($c['title']) ?></td>
-                            <td><?= htmlspecialchars($c['duration_minutes']) ?> min</td>
-                            <td><?= htmlspecialchars($c['enrolled']) ?></td>
-                            <td><?= htmlspecialchars($c['created_at']) ?></td>
-                            <td>
-                                <a href="?delete=<?= $c['id'] ?>" class="btn-del" onclick="return confirm('Delete this course?')">Delete</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr><td colspan="6" style="text-align:center;">No courses available.</td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <tr><td colspan="6" style="text-align:center;">No courses available.</td></tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+
     </div>
 </body>
 </html>

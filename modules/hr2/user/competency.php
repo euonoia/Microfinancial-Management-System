@@ -8,100 +8,38 @@ if (empty($_SESSION['employee_id'])) {
     exit();
 }
 
-// Optionally verify the employee still exists
-$stmt = $conn->prepare("SELECT employee_id FROM employees WHERE employee_id = ? LIMIT 1");
-$stmt->bind_param("i", $_SESSION['employee_id']);
-$stmt->execute();
-$stmt->store_result();
 
 
-$stmt->close();
-
-
-// --- Fetch all employee competencies ---
+// --- Fetch competencies table (without employee-specific fields) ---
 $query = "
 SELECT 
-    ec.id AS competency_id,
-    c.code,
-    c.title,
-    c.description,
-    c.competency_group,
-    ec.level,
-    ec.assessed_at,
-    ec.notes
-FROM employee_competencies ec
-JOIN competencies c ON c.id = ec.competency_id
-WHERE ec.employee_id = ?
-ORDER BY c.title ASC
+    id,
+    code,
+    title,
+    description,
+    competency_group,
+    created_at
+FROM competencies
+ORDER BY created_at DESC
 ";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $employee_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$result = $conn->query($query);
 $competencies = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-$stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Competencies - HR2 Employee</title>
+    <title>Competencies - HR2 Employee</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            margin: 0;
-        }
-        .navbar {
-            background: #1f2937;
-            color: #fff;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar a {
-            color: #fff;
-            text-decoration: none;
-            margin-left: 15px;
-        }
+        body { font-family: Arial, sans-serif; background: #f3f4f6; margin: 0; }
+        .navbar { background: #1f2937; color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar a { color: #fff; text-decoration: none; margin-left: 15px; }
         .navbar a:hover { text-decoration: underline; }
-
-        .container {
-            max-width: 1000px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        h2 {
-            color: #111827;
-            margin-bottom: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-            vertical-align: top;
-        }
+        .container { max-width: 1000px; margin: 40px auto; background: #fff; border-radius: 10px; padding: 25px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        h2 { color: #111827; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
         th { background: #f3f4f6; }
-        .level {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            color: #fff;
-        }
-        .level-1 { background: #ef4444; }
-        .level-2 { background: #f97316; }
-        .level-3 { background: #eab308; }
-        .level-4 { background: #22c55e; }
-        .level-5 { background: #3b82f6; }
     </style>
 </head>
 <body>
@@ -110,6 +48,7 @@ $stmt->close();
         <div>
             <a href="../../../index.php">Dashboard</a>
             <a href="competency.php">Competencies</a>
+            <a href="succession.php">Succession</a>
             <a href="learning.php">Learning</a>
             <a href="training.php">Training</a>
             <a href="ess.php">ESS</a>
@@ -118,8 +57,7 @@ $stmt->close();
     </div>
 
     <div class="container">
-        <h2>My Competencies</h2>
-
+        <h2>All Competencies</h2>
         <table>
             <thead>
                 <tr>
@@ -127,9 +65,7 @@ $stmt->close();
                     <th>Title</th>
                     <th>Description</th>
                     <th>Group</th>
-                    <th>Level</th>
-                    <th>Assessed At</th>
-                    <th>Notes</th>
+                    <th>Created At</th>
                 </tr>
             </thead>
             <tbody>
@@ -140,13 +76,11 @@ $stmt->close();
                             <td><?= htmlspecialchars($c['title']) ?></td>
                             <td><?= nl2br(htmlspecialchars($c['description'])) ?></td>
                             <td><?= htmlspecialchars($c['competency_group']) ?></td>
-                            <td><span class="level level-<?= $c['level'] ?>">Level <?= $c['level'] ?></span></td>
-                            <td><?= $c['assessed_at'] ? htmlspecialchars($c['assessed_at']) : '-' ?></td>
-                            <td><?= htmlspecialchars($c['notes'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($c['created_at']) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <tr><td colspan="7" style="text-align:center;">No competencies recorded yet.</td></tr>
+                    <tr><td colspan="5" style="text-align:center;">No competencies recorded yet.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
