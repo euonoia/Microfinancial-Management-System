@@ -54,12 +54,13 @@ th { background: #f3f4f6; }
 </head>
 <body>
 <div class="navbar">
-    <div><strong>HR2 Employee</strong></div>
+   <div><strong>HR2 Employee</strong></div>
         <div>
             <a href="../../../index.php">Dashboard</a>
             <a href="competency.php">Competencies</a>
             <a href="learning.php">Learning</a>
             <a href="training.php">Training</a>
+            <a href="succession.php">Succession</a>
             <a href="ess.php">ESS</a>
             <a href="../../../logout.php">Logout</a>
         </div>

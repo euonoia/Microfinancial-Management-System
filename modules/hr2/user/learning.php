@@ -92,13 +92,15 @@ a.enroll-btn:hover { background: #1d4ed8; }
 <body>
 <div class="navbar">
     <div><strong>HR2 Employee (<?= htmlspecialchars($employee_code) ?>)</strong></div>
-    <div>
-        <a href="../../../index.php">Dashboard</a>
-        <a href="competency.php">Competencies</a>
-        <a href="succession.php">Succession</a>
-        <a href="learning.php">Learning</a>
-        <a href="../../../logout.php">Logout</a>
-    </div>
+       <div>
+            <a href="../../../index.php">Dashboard</a>
+            <a href="competency.php">Competencies</a>
+            <a href="learning.php">Learning</a>
+            <a href="training.php">Training</a>
+            <a href="succession.php">Succession</a>
+            <a href="ess.php">ESS</a>
+            <a href="../../../logout.php">Logout</a>
+        </div>
 </div>
 
 <div class="container">
