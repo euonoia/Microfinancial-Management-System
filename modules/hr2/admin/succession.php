@@ -11,10 +11,12 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 // --- ADD POSITION ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_position'])) {
     $position_title = trim($_POST['position_title']);
-    $branch_id = trim($_POST['branch_id']);
     $criticality = trim($_POST['criticality']);
 
-    if ($position_title !== '' && $branch_id !== '') {
+    // Generate a unique branch_id (e.g., BR + 6 random characters)
+    $branch_id = 'BR' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 6));
+
+    if ($position_title !== '') {
         $stmt = $conn->prepare("
             INSERT INTO succession_positions (position_title, branch_id, criticality)
             VALUES (?, ?, ?)
@@ -27,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_position'])) {
     header("Location: succession.php");
     exit();
 }
+
 
 // --- ADD CANDIDATE ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_candidate'])) {
@@ -149,7 +152,6 @@ a.btn-del:hover { text-decoration: underline; }
 <form method="POST">
     <h3>Add New Position</h3>
     <input type="text" name="position_title" placeholder="Position Title" required>
-    <input type="text" name="branch_id" placeholder="Branch ID (unique)" required>
     <label>Criticality:</label>
     <select name="criticality" required>
         <option value="low">Low</option>
