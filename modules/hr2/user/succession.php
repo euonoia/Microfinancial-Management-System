@@ -1,8 +1,9 @@
 <?php
+session_name('HR2_EMPLOYEE'); // <-- separate session for employees
 session_start();
 include('../../../config/database.php');
 
-// --- Strong Auth Check ---
+// --- Auth check ---
 if (empty($_SESSION['employee_id'])) {
     header("Location: ../../../login.php");
     exit();
@@ -19,6 +20,7 @@ $result_emp = $stmt_emp->get_result();
 $employee = $result_emp->fetch_assoc();
 $employee_code = $employee['employee_code'];
 $stmt_emp->close();
+
 
 // --- Fetch succession positions assigned to this employee ---
 $query = "

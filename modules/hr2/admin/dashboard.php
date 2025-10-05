@@ -1,18 +1,17 @@
 <?php
+session_name('HR2_ADMIN');
 session_start();
-include('../../../config/database.php'); // Adjust this path if needed
+include('../../../config/database.php');
 
-// --- Auth check ---
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header("Location: admin_login.php");
     exit();
 }
 
-$admin_id = $_SESSION['admin_id'];
-
-// --- Verify if the user is an admin ---
-$stmt = $conn->prepare("SELECT * FROM admin WHERE id = ? LIMIT 1");
-$stmt->bind_param("i", $admin_id);
+// Fetch admin using employee_id
+$employee_id = $_SESSION['admin_employee_id'];
+$stmt = $conn->prepare("SELECT * FROM admin WHERE employee_id = ? LIMIT 1");
+$stmt->bind_param("s", $employee_id);
 $stmt->execute();
 $result = $stmt->get_result();
 

@@ -1,115 +1,89 @@
 <?php
-session_start();
-include('../../../config/database.php'); // adjust path if needed
+// admin_login.php
 
-$error = '';
+// Use a custom session name for admin to avoid colliding with employee sessions
+session_name('HR2_ADMIN');
+session_start();
+
+include('../../../config/database.php'); // adjust path if required
+
+// If already logged in as admin, go to dashboard
+if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
+    header('Location: dashboard.php');
+    exit();
+}
+
+$message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
+    $email = trim($_POST['email'] ?? '');
+    $password = trim($_POST['password'] ?? '');
 
-    // Check if admin exists by email
-    $stmt = $conn->prepare("SELECT id, employee_id, username, password, full_name, email FROM admin WHERE email = ? LIMIT 1");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result && $result->num_rows > 0) {
+    if ($email === '' || $password === '') {
+        $message = 'Please provide both email and password.';
+    } else {
+        // Fetch admin record by email
+        $stmt = $conn->prepare("SELECT id, employee_id, full_name, password FROM admin WHERE email = ? LIMIT 1");
+        if (!$stmt) {
+            // For debugging; remove or log in production
+            die('Prepare failed: ' . $conn->error);
+        }
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $admin = $result->fetch_assoc();
+        $stmt->close();
 
-        // Verify password
-        if (password_verify($password, $admin['password'])) {
-            // Set session variables
-            $_SESSION['admin_id'] = $admin['id'];
-            $_SESSION['employee_id'] = $admin['employee_id'];
-            $_SESSION['username'] = $admin['username'];
-            $_SESSION['full_name'] = $admin['full_name'];
-            $_SESSION['email'] = $admin['email'];
+        if ($admin && password_verify($password, $admin['password'])) {
+            // Successful login: store admin session (by employee_id)
             $_SESSION['is_admin'] = true;
+            $_SESSION['admin_employee_id'] = $admin['employee_id']; // e.g., 7749 or numeric as stored
+            $_SESSION['admin_name'] = $admin['full_name'];
 
-            // Redirect to admin dashboard
-            header("Location: dashboard.php");
+            // regenerate session id to mitigate fixation
+            session_regenerate_id(true);
+
+            header('Location: dashboard.php');
             exit();
         } else {
-            $error = "Invalid password.";
+            // Failed login
+            $message = 'Invalid email or password.';
         }
-    } else {
-        $error = "No account found with that email.";
     }
-    $stmt->close();
 }
 ?>
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Login - HR2</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #f3f4f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .login-box {
-            background: #fff;
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            width: 400px;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #111827;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            width: 100%;
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover { background: #1d4ed8; }
-        .error {
-            color: red;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .register-link {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-        .register-link a { color: #16a34a; text-decoration: none; }
-    </style>
+<meta charset="utf-8">
+<title>Admin Login — HR2</title>
+<style>
+    body { font-family: Arial, sans-serif; background:#f3f4f6; margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh;}
+    .card { background:#fff; padding:28px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.08); width:360px; }
+    h2 { margin:0 0 12px; font-size:20px; }
+    input { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; box-sizing:border-box; }
+    button { width:100%; padding:10px; border-radius:6px; border:0; background:#2563eb; color:#fff; font-weight:600; cursor:pointer; }
+    .msg { margin:12px 0; padding:10px; border-radius:6px; background:#fee2e2; color:#b91c1c; }
+    label { font-size:13px; color:#333; display:block; margin-top:6px; }
+</style>
 </head>
 <body>
-    <div class="login-box">
-        <h2>Admin Login</h2>
+<div class="card">
+    <h2>Admin Login</h2>
 
-        <?php if ($error): ?><div class="error"><?= $error ?></div><?php endif; ?>
+    <?php if ($message): ?>
+        <div class="msg"><?= htmlspecialchars($message) ?></div>
+    <?php endif; ?>
 
-        <form method="POST">
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
+    <form method="post" action="">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required value="<?= isset($email) ? htmlspecialchars($email) : '' ?>">
 
-       
-    </div>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required>
+
+        <button type="submit">Login</button>
+    </form>
+</div>
 </body>
 </html>

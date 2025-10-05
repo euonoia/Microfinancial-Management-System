@@ -1,4 +1,6 @@
 <?php
+// Use the same session name as the employee side
+session_name('HR2_EMPLOYEE');
 session_start();
 
 // Unset all session variables
@@ -7,7 +9,7 @@ $_SESSION = array();
 // Destroy the session
 session_destroy();
 
-// Optionally clear session cookie (for extra security)
+// Optionally clear session cookie (extra security)
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(session_name(), '', time() - 42000,
@@ -16,7 +18,7 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// Redirect back to login page
+// Redirect back to employee login page
 header("Location: login.php");
 exit();
 ?>

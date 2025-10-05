@@ -1,4 +1,5 @@
 <?php
+session_name('HR2_EMPLOYEE'); // Unique session name for employees
 session_start();
 include('../../../config/database.php');
 
@@ -7,8 +8,6 @@ if (empty($_SESSION['employee_id'])) {
     header("Location: ../../../login.php");
     exit();
 }
-
-
 
 // --- Fetch competencies table (without employee-specific fields) ---
 $query = "
@@ -25,6 +24,7 @@ ORDER BY created_at DESC
 $result = $conn->query($query);
 $competencies = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

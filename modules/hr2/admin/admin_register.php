@@ -1,5 +1,8 @@
 <?php
+// Use a custom session name for admin to avoid conflicts with employee sessions
+session_name('HR2_ADMIN');
 session_start();
+
 include('../../../config/database.php'); // adjust path as needed
 
 // --- Check if there is at least one admin ---
@@ -55,8 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $check->close();
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="login-link">
-            Back to  <a href="dashboard.php">Dashboard</a>
+            Back to <a href="dashboard.php">Dashboard</a>
         </div>
     </div>
 </body>

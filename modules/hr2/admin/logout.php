@@ -1,17 +1,18 @@
 <?php
-// Start the session
+// Use the same session name as admin pages
+session_name('HR2_ADMIN');
 session_start();
 
 // Unset all session variables
 $_SESSION = [];
 
-// If there's a session cookie, delete it
+// Delete the session cookie if it exists
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(
         session_name(),
         '',
-        time() - 42000, // Set expiration in the past
+        time() - 42000,
         $params["path"],
         $params["domain"],
         $params["secure"],
@@ -21,9 +22,6 @@ if (ini_get("session.use_cookies")) {
 
 // Destroy the session
 session_destroy();
-
-// Optional: remove any custom cookies you set for login
-// Example: setcookie("user_id", "", time() - 3600, "/");
 
 // Redirect to login page
 header("Location: admin_login.php");

@@ -1,5 +1,8 @@
 <?php
+// --- Set custom session name for admin ---
+session_name('HR2_ADMIN'); // <-- added session name
 session_start();
+
 include('../../../config/database.php');
 
 // --- Auth check ---
@@ -43,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_training'])) {
     exit();
 }
 
-
 // --- DELETE TRAINING SESSION ---
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
@@ -52,7 +54,6 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
-// --- FETCH TRAININGS WITH ATTENDANCE COUNT ---
 // --- FETCH TRAINING SESSIONS ---
 $query = "
     SELECT 
@@ -72,12 +73,12 @@ $query = "
 $result = $conn->query($query);
 $sessions = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
-
-// --- FETCH TRAINERS (FROM EMPLOYEES TABLE) ---
+// --- FETCH TRAINERS ---
 $trainers = [];
 $res = $conn->query("SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees ORDER BY first_name ASC");
 if ($res) $trainers = $res->fetch_all(MYSQLI_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -1,5 +1,8 @@
 <?php
+// Use a custom session name for admin
+session_name('HR2_ADMIN');
 session_start();
+
 include('../../../config/database.php');
 
 // --- Auth check ---
@@ -7,6 +10,10 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header("Location: admin_login.php");
     exit();
 }
+
+// --- Fetch admin info from session ---
+$admin_employee_id = $_SESSION['admin_employee_id'] ?? null;
+$admin_name = $_SESSION['admin_name'] ?? 'Admin';
 
 // --- UPDATE REQUEST STATUS ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
@@ -51,52 +58,55 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
         button.reject { background: #dc2626; }
         button.close { background: #f59e0b; }
         button:hover { opacity: 0.9; }
+        .admin-info { text-align: right; margin-bottom: 10px; color: #111827; font-weight: bold; }
     </style>
 </head>
 <body>
-   <div class="navbar">
-        <div><strong>HR2 Admin </strong></div>
-        <div>
-            <a href="dashboard.php">Dashboard</a>
-            <a href="admin_register.php">add ADMIN</a>
-            <a href="competency.php">Competency</a>
-            <a href="learning.php">Learning</a>
-            <a href="training.php">Training</a>
-            <a href="succession.php">Succession</a>
-            <a href="ess.php">ESS</a>
-            <a href="logout.php">Logout</a>
-        </div>
+<div class="navbar">
+    <div><strong>HR2 Admin</strong></div>
+    <div>
+        <a href="dashboard.php">Dashboard</a>
+        <a href="admin_register.php">Add Admin</a>
+        <a href="competency.php">Competency</a>
+        <a href="learning.php">Learning</a>
+        <a href="training.php">Training</a>
+        <a href="succession.php">Succession</a>
+        <a href="ess.php">ESS</a>
+        <a href="logout.php">Logout</a>
     </div>
+</div>
 
-    <div class="container">
-        <h2>Employee Self-Service Requests</h2>
+<div class="container">
+   
 
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Employee</th>
-                    <th>Type</th>
-                    <th>Payload</th>
-                    <th>Status</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (count($requests) > 0): ?>
-                    <?php foreach ($requests as $r): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($r['id']) ?></td>
-                            <td><?= htmlspecialchars($r['employee_name']) ?></td>
-                            <td><?= htmlspecialchars($r['type']) ?></td>
-                            <td><?= htmlspecialchars($r['details']) ?></td>
-                            <td><?= htmlspecialchars($r['status']) ?></td>
-                            <td><?= htmlspecialchars($r['created_at']) ?></td>
-                            <td><?= htmlspecialchars($r['updated_at']) ?></td>
-                            <td>
-                                <?php if ($r['status'] !== 'approved'): ?>
+    <h2>Employee Self-Service Requests</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Employee</th>
+                <th>Type</th>
+                <th>Payload</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (count($requests) > 0): ?>
+                <?php foreach ($requests as $r): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($r['id']) ?></td>
+                        <td><?= htmlspecialchars($r['employee_name']) ?></td>
+                        <td><?= htmlspecialchars($r['type']) ?></td>
+                        <td><?= htmlspecialchars($r['details']) ?></td>
+                        <td><?= htmlspecialchars($r['status']) ?></td>
+                        <td><?= htmlspecialchars($r['created_at']) ?></td>
+                        <td><?= htmlspecialchars($r['updated_at']) ?></td>
+                        <td>
+                            <?php if ($r['status'] !== 'approved'): ?>
                                 <form method="POST">
                                     <input type="hidden" name="request_id" value="<?= $r['id'] ?>">
                                     <button type="submit" name="update_status" value="approved" class="approve" onclick="this.form.status.value='approved'">Approve</button>
@@ -104,17 +114,17 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
                                     <button type="submit" name="update_status" value="closed" class="close" onclick="this.form.status.value='closed'">Close</button>
                                     <input type="hidden" name="status" value="">
                                 </form>
-                                <?php else: ?>
-                                    <em>Completed</em>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr><td colspan="8" style="text-align:center;">No requests found.</td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+                            <?php else: ?>
+                                <em>Completed</em>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr><td colspan="8" style="text-align:center;">No requests found.</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
 </body>
 </html>

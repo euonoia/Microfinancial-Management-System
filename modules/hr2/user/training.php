@@ -1,4 +1,5 @@
 <?php
+session_name('HR2_EMPLOYEE'); // <-- separate session for employees
 session_start();
 include('../../../config/database.php');
 

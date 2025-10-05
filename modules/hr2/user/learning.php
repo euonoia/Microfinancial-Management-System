@@ -1,4 +1,5 @@
 <?php
+session_name('HR2_EMPLOYEE'); // Unique session for employee
 session_start();
 include('../../../config/database.php');
 
@@ -19,6 +20,7 @@ $result_emp = $stmt_emp->get_result();
 $employee = $result_emp->fetch_assoc();
 $employee_code = $employee['employee_code'];
 $stmt_emp->close();
+
 
 // --- Handle enrollment ---
 $message = "";

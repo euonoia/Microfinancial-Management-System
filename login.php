@@ -1,4 +1,5 @@
 <?php
+session_name('HR2_EMPLOYEE'); // <- Unique session for employees
 session_start();
 include('config/database.php');
 
@@ -42,6 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

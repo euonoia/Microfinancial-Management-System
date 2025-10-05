@@ -1,5 +1,8 @@
 <?php
+// --- Set custom session name ---
+session_name('HR2_ADMIN'); // <-- added session name
 session_start();
+
 include('../../../config/database.php');
 
 // --- Auth check ---
@@ -61,13 +64,14 @@ if (isset($_GET['delete'])) {
 $query = "
 SELECT c.*, COUNT(e.id) AS enrolled
 FROM courses c
-LEFT JOIN course_enrollments e ON e.course_id = c.id
+LEFT JOIN course_enrolls e ON e.course_id = c.id
 GROUP BY c.id
 ORDER BY c.created_at DESC
 ";
 $result = $conn->query($query);
 $courses = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

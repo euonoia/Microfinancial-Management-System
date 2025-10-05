@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db   = "microfinance_hr2";
+$db   = "database_test";
 
 $conn = new mysqli($host, $user, $pass, $db);
 

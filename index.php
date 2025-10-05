@@ -1,12 +1,13 @@
     <?php
-    session_start();
-    include('config/database.php'); // Adjust if needed
+        session_name('HR2_EMPLOYEE'); // Unique session for employees
+        session_start();
+        include('config/database.php'); // Adjust if needed
 
-    // --- Auth check ---
-    if (!isset($_SESSION['employee_id']) || empty($_SESSION['employee_id'])) {
-        header("Location: login.php");
-        exit();
-    }
+        if (!isset($_SESSION['employee_id']) || empty($_SESSION['employee_id'])) {
+            header("Location: login.php");
+            exit();
+        }
+
 
     // --- Get numeric employee primary key from session ---
     $numeric_id = (int)$_SESSION['employee_id'];

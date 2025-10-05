@@ -1,5 +1,8 @@
 <?php
+// --- Set custom session name for admin ---
+session_name('HR2_ADMIN'); // <-- added session name
 session_start();
+
 include('../../../config/database.php');
 
 // --- Auth check (admin only) ---
@@ -7,6 +10,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header("Location: admin_login.php");
     exit();
 }
+
 
 // --- ADD POSITION ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_position'])) {
