@@ -35,6 +35,7 @@ $stmt->close();
 <!DOCTYPE html>
 <html lang="en">
 <head>
+        <link rel="icon" href="../../../logo/deamns.png">
 <meta charset="UTF-8">
 <title>My Succession Plan</title>
 <style>

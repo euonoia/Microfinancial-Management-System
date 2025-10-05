@@ -73,6 +73,8 @@ $stmt->close();
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+        <link rel="icon" href="../../../logo/deamns.png">
+
 <title>Available Courses - HR2 Employee</title>
 <style>
 body { font-family: Arial, sans-serif; background: #f3f4f6; margin: 0; }

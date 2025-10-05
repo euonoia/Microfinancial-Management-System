@@ -90,6 +90,7 @@ $courses = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
         a.btn-del { color: red; text-decoration: none; }
         a.btn-del:hover { text-decoration: underline; }
     </style>
+    <link rel="icon" href="logo/logo.png" type="image/x-icon">
 </head>
 <body>
     <div class="navbar">

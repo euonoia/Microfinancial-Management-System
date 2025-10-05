@@ -69,7 +69,10 @@ $stmt->close();
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+        <link rel="icon" href="../../../logo/deamns.png">
+
 <title>Training - HR2 Employee</title>
+
 <style>
 body { font-family: Arial, sans-serif; background: #f3f4f6; margin: 0; }
 .navbar { background: #1f2937; color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
