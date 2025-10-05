@@ -12,7 +12,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     $request_id = intval($_POST['request_id']);
     $status = $_POST['status']; // approved, rejected, closed
-    $stmt = $conn->prepare("UPDATE ess_requests SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE ess_request SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
     $stmt->bind_param("si", $status, $request_id);
     $stmt->execute();
     $stmt->close();
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
 // --- FETCH ALL ESS REQUESTS WITH EMPLOYEE NAMES ---
 $query = "
 SELECT e.*, u.name AS employee_name
-FROM ess_requests e
+FROM ess_request e
 LEFT JOIN employees u ON u.id = e.employee_id
 ORDER BY e.created_at DESC
 ";
@@ -90,7 +90,7 @@ $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
                             <td><?= htmlspecialchars($r['id']) ?></td>
                             <td><?= htmlspecialchars($r['employee_name']) ?></td>
                             <td><?= htmlspecialchars($r['type']) ?></td>
-                            <td><?= htmlspecialchars($r['payload']) ?></td>
+                            <td><?= htmlspecialchars($r['details']) ?></td>
                             <td><?= htmlspecialchars($r['status']) ?></td>
                             <td><?= htmlspecialchars($r['created_at']) ?></td>
                             <td><?= htmlspecialchars($r['updated_at']) ?></td>

@@ -42,7 +42,7 @@ if (isset($_GET['enroll'])) {
     $stmt_check->close();
 
     // Redirect to avoid duplicate GET
-    header("Location: employee_training.php?msg=" . urlencode($message));
+    header("Location:training.php?msg=" . urlencode($message));
     exit();
 }
 

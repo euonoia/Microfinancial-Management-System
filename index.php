@@ -54,21 +54,21 @@ $counts = [
 
 // Competencies count
 $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM employee_competencies WHERE employee_id = ?");
-$stmt->bind_param("i", $employee_id);
+$stmt->bind_param("s", $employee_id);
 $stmt->execute();
 $counts['Competencies'] = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
 $stmt->close();
 
 // Enrolled courses
-$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM course_enrollments WHERE employee_id = ?");
-$stmt->bind_param("i", $employee_id);
+$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM course_enrolls WHERE employee_id = ?");
+$stmt->bind_param("s", $employee_id);
 $stmt->execute();
 $counts['Courses'] = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
 $stmt->close();
 
 // Trainings attended or registered
-$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM training_attendance WHERE employee_id = ?");
-$stmt->bind_param("i", $employee_id);
+$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM training_enrolls WHERE employee_id = ?");
+$stmt->bind_param("s", $employee_id);
 $stmt->execute();
 $counts['Trainings'] = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
 $stmt->close();
@@ -167,7 +167,7 @@ $stmt->close();
             <a href="modules/hr2/user/learning.php">Learning</a>
             <a href="modules/hr2/user/training.php">Training</a>
             <a href="modules/hr2/user/succession.php">Succession</a>
-            <a href="modules/hr2/ess.php">ESS</a>
+            <a href="modules/hr2/user/ess.php">ESS</a>
             <a href="logout.php">Logout</a>
         </div>
     </div>
