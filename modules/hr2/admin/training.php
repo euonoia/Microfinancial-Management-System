@@ -1,6 +1,6 @@
 <?php
 // --- Set custom session name for admin ---
-session_name('HR2_ADMIN'); // <-- added session name
+session_name('HR2_ADMIN');
 session_start();
 
 include('../../../config/database.php');
@@ -54,20 +54,23 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
-// --- FETCH TRAINING SESSIONS ---
+// --- FETCH TRAINING SESSIONS WITH ATTENDEES COUNT ---
 $query = "
     SELECT 
-        id,
-        training_id,
-        title,
-        description,
-        start_datetime,
-        end_datetime,
-        location,
-        trainer,
-        capacity
-    FROM training_sessions
-    ORDER BY start_datetime DESC
+        t.id,
+        t.training_id,
+        t.title,
+        t.description,
+        t.start_datetime,
+        t.end_datetime,
+        t.location,
+        t.trainer,
+        t.capacity,
+        COUNT(e.id) AS attendees
+    FROM training_sessions t
+    LEFT JOIN training_enrolls e ON e.training_id = t.training_id
+    GROUP BY t.id
+    ORDER BY t.start_datetime DESC
 ";
 
 $result = $conn->query($query);
@@ -85,85 +88,29 @@ if ($res) $trainers = $res->fetch_all(MYSQLI_ASSOC);
     <meta charset="UTF-8">
     <title>Training Management - HR2 Admin</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            margin: 0;
-        }
-        .navbar {
-            background: #1f2937;
-            color: #fff;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar a {
-            color: #fff;
-            text-decoration: none;
-            margin-left: 15px;
-        }
+        body { font-family: Arial, sans-serif; background: #f3f4f6; margin: 0; }
+        .navbar { background: #1f2937; color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar a { color: #fff; text-decoration: none; margin-left: 15px; }
         .navbar a:hover { text-decoration: underline; }
-
-        .container {
-            max-width: 1100px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        h2 {
-            color: #111827;
-            margin-bottom: 20px;
-        }
-        form {
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        input, textarea, select {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-        button {
-            background: #2563eb;
-            color: #fff;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #1d4ed8;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-        }
+        .container { max-width: 1100px; margin: 40px auto; background: #fff; border-radius: 10px; padding: 25px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        h2 { color: #111827; margin-bottom: 20px; }
+        form { background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 30px; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #ccc; }
+        button { background: #2563eb; color: #fff; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #1d4ed8; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
         th { background: #f3f4f6; }
-        a.btn-del {
-            color: red;
-            text-decoration: none;
-        }
+        a.btn-del { color: red; text-decoration: none; }
         a.btn-del:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
    <div class="navbar">
-        <div><strong>HR2 Admin </strong></div>
+        <div><strong>HR2 Admin</strong></div>
         <div>
             <a href="dashboard.php">Dashboard</a>
-            <a href="admin_register.php">add ADMIN</a>
+            <a href="admin_register.php">Add Admin</a>
             <a href="competency.php">Competency</a>
             <a href="learning.php">Learning</a>
             <a href="training.php">Training</a>
