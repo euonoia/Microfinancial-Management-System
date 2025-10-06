@@ -54,20 +54,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_course'])) {
 
 // --- DELETE COURSE ---
 if (isset($_GET['delete'])) {
-    $id = intval($_GET['delete']);
-    $conn->query("DELETE FROM courses WHERE id = $id");
-    header("Location: learning.php");
-    exit();
+    $course_id = $_GET['delete'];
+
+    // Step 1: Copy course to archive
+    $archiveQuery = "
+        INSERT INTO course_archive (course_id, title, description, content_url, duration_minutes, created_at)
+        SELECT course_id, title, description, content_url, duration_minutes, created_at
+        FROM courses
+        WHERE course_id = ?
+    ";
+    $stmt = $conn->prepare($archiveQuery);
+    $stmt->bind_param("s", $course_id);
+    $stmt->execute();
+
+    // Step 2: Delete the course from main table
+    $deleteQuery = "DELETE FROM courses WHERE course_id = ?";
+    $stmt = $conn->prepare($deleteQuery);
+    $stmt->bind_param("s", $course_id);
+    $stmt->execute();
+
+    // Optional: also remove enrollments if you want
+    // $conn->query("DELETE FROM course_enrolls WHERE course_id = '$course_id'");
+
+    echo "<script>alert('Course archived successfully!'); window.location.href='learning.php';</script>";
 }
 
-// --- FETCH COURSES WITH ENROLLMENT COUNT ---
 $query = "
-SELECT c.*, COUNT(e.id) AS enrolled
+SELECT 
+    c.course_id,
+    c.title,
+    c.duration_minutes,
+    c.created_at,
+    COUNT(e.id) AS enrolled
 FROM courses c
-LEFT JOIN course_enrolls e ON e.course_id = c.id
-GROUP BY c.id
+LEFT JOIN course_enrolls e 
+    ON e.course_id = c.course_id
+GROUP BY c.course_id, c.title, c.duration_minutes, c.created_at
 ORDER BY c.created_at DESC
 ";
+
+
 $result = $conn->query($query);
 $courses = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 ?>
@@ -124,7 +150,6 @@ $courses = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
         </form>
 
         <!-- Courses Table -->
-        <!-- Courses Table -->
 <table>
     <thead>
         <tr>
@@ -136,24 +161,27 @@ $courses = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
             <th>Action</th>
         </tr>
     </thead>
-    <tbody>
-        <?php if (count($courses) > 0): ?>
-            <?php foreach ($courses as $c): ?>
+        <tbody>
+            <?php if (!empty($courses)): ?>
+                <?php foreach ($courses as $c): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($c['course_id']) ?></td>
+                        <td><?= htmlspecialchars($c['title']) ?></td>
+                        <td><?= htmlspecialchars($c['duration_minutes']) ?> min</td>
+                        <td><?= htmlspecialchars($c['enrolled']) ?></td>
+                        <td><?= htmlspecialchars($c['created_at']) ?></td>
+                        <td>
+                            <a href="?delete=<?= $c['course_id'] ?>" class="btn-del" onclick="return confirm('Archive this course?')">Archive</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
                 <tr>
-                    <td><?= htmlspecialchars($c['course_id']) ?></td>
-                    <td><?= htmlspecialchars($c['title']) ?></td>
-                    <td><?= htmlspecialchars($c['duration_minutes']) ?> min</td>
-                    <td><?= htmlspecialchars($c['enrolled']) ?></td>
-                    <td><?= htmlspecialchars($c['created_at']) ?></td>
-                    <td>
-                        <a href="?delete=<?= $c['id'] ?>" class="btn-del" onclick="return confirm('Delete this course?')">Delete</a>
-                    </td>
+                    <td colspan="6" style="text-align:center;">No courses available.</td>
                 </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr><td colspan="6" style="text-align:center;">No courses available.</td></tr>
-        <?php endif; ?>
-    </tbody>
+            <?php endif; ?>
+        </tbody>
+
 </table>
 
     </div>

@@ -15,17 +15,60 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 $admin_employee_id = $_SESSION['admin_employee_id'] ?? null;
 $admin_name = $_SESSION['admin_name'] ?? 'Admin';
 
-// --- UPDATE REQUEST STATUS ---
+// --- UPDATE REQUEST STATUS + ARCHIVE ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     $request_id = intval($_POST['request_id']);
     $status = $_POST['status']; // approved, rejected, closed
+
+    // Update the request first
     $stmt = $conn->prepare("UPDATE ess_request SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
     $stmt->bind_param("si", $status, $request_id);
     $stmt->execute();
     $stmt->close();
+
+    // If the request is approved or rejected → archive it
+    if (in_array($status, ['approved', 'rejected'])) {
+        // Get the full request data
+        $select = $conn->prepare("SELECT * FROM ess_request WHERE id = ?");
+        $select->bind_param("i", $request_id);
+        $select->execute();
+        $result = $select->get_result();
+        $request = $result->fetch_assoc();
+        $select->close();
+
+        if ($request) {
+            // Insert into archive with ess_id
+            $insert = $conn->prepare("
+                INSERT INTO ess_request_archive 
+                (ess_id, employee_id, type, details, status, created_at, updated_at, archived_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+            ");
+            $insert->bind_param(
+                "issssss",
+                $request['id'],
+                $request['employee_id'],
+                $request['type'],
+                $request['details'],
+                $request['status'],
+                $request['created_at'],
+                $request['updated_at']
+            );
+            $insert->execute();
+            $insert->close();
+
+            // Delete from main ESS table
+            $delete = $conn->prepare("DELETE FROM ess_request WHERE id = ?");
+            $delete->bind_param("i", $request_id);
+            $delete->execute();
+            $delete->close();
+        }
+    }
+
     header("Location: ess.php");
     exit();
 }
+
+
 
 // --- FETCH ALL ESS REQUESTS WITH EMPLOYEE NAMES ---
 $query = "
@@ -37,9 +80,6 @@ ORDER BY e.created_at DESC
 
 $result = $conn->query($query);
 $requests = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-?>
-<?php
-// ... your PHP code above stays the same
 ?>
 <!DOCTYPE html>
 <html lang="en">

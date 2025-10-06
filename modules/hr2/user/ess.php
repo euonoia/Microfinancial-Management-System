@@ -56,18 +56,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_request'])) {
     exit();
 }
 
-// --- Fetch ESS requests for this employee using employee code ---
+// --- Fetch ESS requests (active + archived) for this employee ---
 $query = "
-SELECT *
+SELECT ess_id, employee_id, type, details, status, created_at, updated_at 
 FROM ess_request
 WHERE employee_id = ?
+
+UNION ALL
+
+SELECT ess_id, employee_id, type, details, status, created_at, updated_at
+FROM ess_request_archive
+WHERE employee_id = ?
+
 ORDER BY created_at DESC
 ";
+
 $stmt = $conn->prepare($query);
 if (!$stmt) {
-    die("Prepare failed: " . $conn->error);
+    die('Prepare failed: ' . $conn->error);
 }
-$stmt->bind_param("s", $employee_code); // use employee code
+$stmt->bind_param("ss", $employee_code, $employee_code);
 $stmt->execute();
 $result = $stmt->get_result();
 $requests = $result->fetch_all(MYSQLI_ASSOC);
@@ -101,7 +109,7 @@ th { background: #f3f4f6; }
 </head>
 <body>
 <div class="navbar">
-    <div><strong>ESS Portal (<?= htmlspecialchars($employee_code) ?>)</strong></div>
+    <div><strong>ESS Portal </strong></div>
       <div>
         <a href="../../../index.php">Dashboard</a>
             <a href="competency.php">Competencies</a>
@@ -131,8 +139,6 @@ th { background: #f3f4f6; }
 <table>
 <thead>
 <tr>
-    <th>ESS ID</th>
-    <th>Employee Code</th>
     <th>Type</th>
     <th>Details</th>
     <th>Status</th>
@@ -144,8 +150,6 @@ th { background: #f3f4f6; }
 <?php if (count($requests) > 0): ?>
     <?php foreach ($requests as $r): ?>
         <tr>
-            <td><?= htmlspecialchars($r['ess_id']) ?></td>
-            <td><?= htmlspecialchars($r['employee_id']) ?></td>
             <td><?= htmlspecialchars($r['type']) ?></td>
             <td><?= htmlspecialchars($r['details']) ?></td>
             <td class="status-<?= htmlspecialchars($r['status']) ?>">

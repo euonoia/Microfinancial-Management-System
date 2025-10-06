@@ -30,7 +30,7 @@ $tables = [
     'learning_modules' => 'Learning Modules',
     'training_sessions' => 'Trainings',
     'succession_positions' => 'Succession Positions',
-    'ess_requests' => 'ESS Requests'
+    'ess_request' => 'ESS Requests'
 ];
 
 $counts = [];

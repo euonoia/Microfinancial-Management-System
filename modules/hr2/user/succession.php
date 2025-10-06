@@ -67,7 +67,7 @@ $stmt->close();
 </head>
 <body>
 <div class="navbar">
-   <div><strong>HR2 Employee (<?= htmlspecialchars($employee_code) ?>)</strong></div>
+   <div><strong>HR2 Employee </strong></div>
    <div>
        <a href="../../../index.php">Dashboard</a>
        <a href="competency.php">Competencies</a>
