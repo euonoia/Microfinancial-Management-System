@@ -1,5 +1,5 @@
 <?php
-session_name('HR2_EMPLOYEE'); // <-- separate session for employees
+session_name('HR2_EMPLOYEE'); 
 session_start();
 include('../../../config/database.php');
 
@@ -9,7 +9,6 @@ if (empty($_SESSION['employee_id'])) {
     exit();
 }
 
-// Get numeric employee ID from session
 $numeric_id = (int)$_SESSION['employee_id'];
 
 // --- Fetch employee code ---
@@ -21,8 +20,7 @@ $employee = $result_emp->fetch_assoc();
 $employee_code = $employee['employee_code'];
 $stmt_emp->close();
 
-
-// --- Fetch succession positions assigned to this employee ---
+// --- Fetch succession positions ---
 $query = "
 SELECT 
     p.position_title,
@@ -36,81 +34,129 @@ JOIN succession_positions p ON p.branch_id = c.branch_id
 WHERE c.employee_id = ?
 ORDER BY p.position_title
 ";
-
 $stmt = $conn->prepare($query);
-$stmt->bind_param("s", $employee_code); // Use employee_code instead of numeric ID
+$stmt->bind_param("s", $employee_code);
 $stmt->execute();
 $result = $stmt->get_result();
 $my_positions = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" href="../../../logo/deamns.png">
-    <meta charset="UTF-8">
-    <title>My Succession Plan</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f3f4f6; margin: 0; }
-        .navbar { background: #1f2937; color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
-        .navbar a { color: #fff; text-decoration: none; margin-left: 15px; }
-        .navbar a:hover { text-decoration: underline; }
-        .container { max-width: 1000px; margin: 40px auto; background: #fff; border-radius: 10px; padding: 25px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-        h2 { color: #111827; margin-bottom: 10px; text-align:center; }
-        p.logged-in { text-align: center; font-weight: bold; color: #1f2937; }
-        table { width: 100%; border-collapse: collapse; margin-top: 25px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
-        th { background: #f3f4f6; }
-        .logout-btn { padding: 8px 16px; background:#f00; color:#fff; border:none; border-radius:5px; cursor:pointer; text-decoration:none; }
-        .logout-btn:hover { background:#c00; }
-        .section-title { margin-top: 20px; color: #111827; text-align:center; }
-    </style>
+<meta charset="UTF-8">
+<link rel="icon" href="../../../logo/deamns.png">
+<title>My Succession Plan - HR2 Employee</title>
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<div class="navbar">
-   <div><strong>HR2 Employee </strong></div>
-   <div>
-       <a href="../../../index.php">Dashboard</a>
-       <a href="competency.php">Competencies</a>
-       <a href="learning.php">Learning</a>
-       <a href="training.php">Training</a>
-       <a href="succession.php">Succession</a>
-       <a href="ess.php">ESS</a>
-       <a href="../../../logout.php">Logout</a>
-   </div>
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="logo">
+        <img src="../../../logo/deamns.png" alt="HR2 Logo">
+    </div>
+    <nav>
+        <nav>
+    <a href="../../../index.php" >
+        <i class="bi bi-house-door"></i> <span>Dashboard</span>
+        <div class="tooltip">Dashboard</div>
+    </a>
+    <a href="competency.php">
+        <i class="bi bi-lightbulb"></i> <span>Competencies</span>
+        <div class="tooltip">Competencies</div>
+    </a>
+    <a href="learning.php">
+        <i class="bi bi-book"></i> <span>Learning</span>
+        <div class="tooltip">Learning</div>
+    </a>
+    <a href="training.php">
+        <i class="bi bi-mortarboard"></i> <span>Training</span>
+        <div class="tooltip">Training</div>
+    </a>
+    <a href="succession.php" class="active">
+        <i class="bi bi-tree"></i> <span>Succession</span>
+        <div class="tooltip">Succession</div>
+    </a>
+    <a href="ess.php">
+        <i class="bi bi-pencil-square"></i> <span>ESS</span>
+        <div class="tooltip">ESS</div>
+    </a>
+    <a href="../../../logout.php">
+        <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+        <div class="tooltip">Logout</div>
+    </a>
+</nav>
+
+    </nav>
 </div>
 
-<div class="container">
+<!-- MAIN CONTENT -->
+<div class="main">
+    <div class="main-inner">
+        <div class="header">
+            <h2>My Succession Plan</h2>
+            <p>View positions you are assigned to and their readiness details.</p>
+        </div>
 
-    <h3 class="section-title">Assigned Positions</h3>
-    <table>
-        <thead>
-        <tr>
-            <th>Position</th>
-            <th>Branch</th>
-            <th>Criticality</th>
-            <th>Readiness</th>
-            <th>Effective At</th>
-            <th>Development Plan</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php if (count($my_positions) > 0): ?>
-            <?php foreach ($my_positions as $pos): ?>
+        <table>
+            <thead>
                 <tr>
-                    <td><?= htmlspecialchars($pos['position_title']) ?></td>
-                    <td><?= htmlspecialchars($pos['branch_id']) ?></td>
-                    <td><?= htmlspecialchars(ucfirst($pos['criticality'])) ?></td>
-                    <td><?= htmlspecialchars(ucfirst($pos['readiness'])) ?></td>
-                    <td><?= htmlspecialchars($pos['effective_at']) ?></td>
-                    <td><?= htmlspecialchars($pos['development_plan']) ?></td>
+                    <th>Position</th>
+                    <th>Branch</th>
+                    <th>Criticality</th>
+                    <th>Readiness</th>
+                    <th>Effective At</th>
+                    <th>Development Plan</th>
                 </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr><td colspan="5" style="text-align:center;">You are not assigned to any succession positions.</td></tr>
-        <?php endif; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php if (count($my_positions) > 0): ?>
+                    <?php foreach ($my_positions as $pos): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($pos['position_title']) ?></td>
+                            <td><?= htmlspecialchars($pos['branch_id']) ?></td>
+                            <td><?= htmlspecialchars(ucfirst($pos['criticality'])) ?></td>
+                            <td><?= htmlspecialchars(ucfirst($pos['readiness'])) ?></td>
+                            <td><?= htmlspecialchars($pos['effective_at']) ?></td>
+                            <td><?= htmlspecialchars($pos['development_plan']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr><td colspan="6" style="text-align:center;">You are not assigned to any succession positions.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<!-- SIDEBAR COLLAPSE SCRIPT -->
+<script>
+    const sidebar = document.getElementById('sidebar');
+    sidebar.addEventListener('mouseenter', () => {
+        if (window.innerWidth > 768 && sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+        }
+    });
+    sidebar.addEventListener('mouseleave', () => {
+        if (window.innerWidth > 768) {
+            sidebar.classList.add('collapsed');
+        }
+    });
+    if (window.innerWidth > 768) {
+        sidebar.classList.add('collapsed');
+    }
+    document.addEventListener('click', (e) => {
+        const toggle = document.querySelector('.menu-toggle');
+        if (!sidebar.contains(e.target) && (!toggle || !toggle.contains(e.target))) {
+            sidebar.classList.remove('show');
+        }
+    });
+</script>
 </body>
 </html>

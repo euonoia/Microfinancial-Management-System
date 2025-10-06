@@ -1,0 +1,242 @@
+
+:root {
+    --primary: #1B3C53;
+    --primary-hover: #234C6A;
+    --accent: #456882;
+    --highlight: #D2C1B6;
+    --bg: #f7f8fa;
+    --text-dark: #1B3C53;
+    --text-light: #6b7280;
+}
+
+* { box-sizing: border-box; transition: all 0.3s ease; }
+
+body {
+    font-family: "Inter", Arial, sans-serif;
+    background: var(--bg);
+    margin: 0;
+    display: flex;
+    color: var(--text-dark);
+    height: 100vh;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: 240px;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 0;
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transition: width 0.3s ease;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+}
+
+.sidebar.collapsed { width: 80px; }
+
+.sidebar .logo {
+    text-align: center;
+    margin-bottom: 35px;
+    width: 100%;
+}
+
+.sidebar .logo img {
+    width: 60px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    margin-bottom: 8px;
+}
+
+.logo-text {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--highlight);
+    opacity: 1;
+}
+
+.collapsed .logo-text { opacity: 0; visibility: hidden; }
+
+.sidebar nav {
+    width: 100%;
+    position: relative;
+}
+
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 25px;
+    color: #e5e7eb;
+    text-decoration: none;
+    font-size: 15px;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+.sidebar nav a:hover {
+    background: var(--primary-hover);
+    color: #fff;
+}
+
+.sidebar nav a.active {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+}
+
+.sidebar nav a i { font-size: 18px; }
+
+.collapsed nav a span { opacity: 0; visibility: hidden; }
+
+/* --- MAIN CONTENT --- */
+.main {
+    margin-left: 240px;
+    padding: 40px;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-y: auto;
+    transition: margin-left 0.3s ease;
+}
+
+.collapsed ~ .main { margin-left: 80px; }
+
+.main-inner {
+    max-width: 1000px;
+    width: 100%;
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.header {
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+.header h2 {
+    margin: 0;
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 24px;
+}
+
+.header p {
+    color: var(--text-light);
+    margin-top: 6px;
+    font-size: 15px;
+}
+
+form {
+    background: var(--bg);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+button {
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover { background: var(--primary-hover); }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+}
+
+th {
+    background: var(--bg);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+tr:hover { background: #f9fafb; }
+
+.status-pending { color: #f59e0b; font-weight: bold; }
+.status-approved { color: #16a34a; font-weight: bold; }
+.status-rejected { color: #dc2626; font-weight: bold; }
+.status-closed { color: #6b7280; font-weight: bold; }
+
+.enroll-btn {
+    background: var(--accent);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.enroll-btn:hover { background: var(--primary-hover); }
+
+.message {
+    padding: 10px;
+    background: #22c55e;
+    color: #fff;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    text-align: center;
+}
+/* --- TOOLTIP --- */
+    .tooltip {
+        position: absolute;
+        left: 80px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0,0,0,0.85);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .collapsed nav a:hover .tooltip {
+        opacity: 1;
+        visibility: visible;
+        left: 90px;
+    }
+    
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.show { transform: translateX(0); }
+    .main { margin-left: 0; padding: 20px; }
+}
+

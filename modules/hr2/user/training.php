@@ -43,7 +43,7 @@ if (isset($_GET['enroll'])) {
     $stmt_check->close();
 
     // Redirect to avoid duplicate GET
-    header("Location:training.php?msg=" . urlencode($message));
+    header("Location: training.php?msg=" . urlencode($message));
     exit();
 }
 
@@ -66,86 +66,133 @@ $result = $stmt->get_result();
 $sessions = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-        <link rel="icon" href="../../../logo/deamns.png">
-
+<link rel="icon" href="../../../logo/deamns.png">
 <title>Training - HR2 Employee</title>
 
-<style>
-body { font-family: Arial, sans-serif; background: #f3f4f6; margin: 0; }
-.navbar { background: #1f2937; color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
-.navbar a { color: #fff; text-decoration: none; margin-left: 15px; }
-.navbar a:hover { text-decoration: underline; }
-.container { max-width: 1000px; margin: 40px auto; background: #fff; border-radius: 10px; padding: 25px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-h2 { color: #111827; margin-bottom: 20px; }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
-th { background: #f3f4f6; }
-a.enroll-btn { background: #2563eb; color: #fff; padding: 6px 12px; border-radius: 5px; text-decoration: none; }
-a.enroll-btn:hover { background: #1d4ed8; }
-.message { padding: 10px; background: #22c55e; color: #fff; margin-bottom: 15px; border-radius: 5px; text-align: center; }
-</style>
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="navbar">
-    <div><strong>HR2 Employee </strong></div>
-    <div>
-        <a href="../../../index.php">Dashboard</a>
-            <a href="competency.php">Competencies</a>
-            <a href="learning.php">Learning</a>
-            <a href="training.php">Training</a>
-            <a href="succession.php">Succession</a>
-            <a href="ess.php">ESS</a>
-            <a href="../../../logout.php">Logout</a>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="logo">
+        <img src="../../../logo/deamns.png" alt="HR2 Logo">
+    </div>
+    <nav>
+        <nav>
+    <a href="../../../index.php">
+        <i class="bi bi-house-door"></i> <span>Dashboard</span>
+        <div class="tooltip">Dashboard</div>
+    </a>
+    <a href="competency.php">
+        <i class="bi bi-lightbulb"></i> <span>Competencies</span>
+        <div class="tooltip">Competencies</div>
+    </a>
+    <a href="learning.php">
+        <i class="bi bi-book"></i> <span>Learning</span>
+        <div class="tooltip">Learning</div>
+    </a>
+    <a href="training.php" class="active">
+        <i class="bi bi-mortarboard"></i> <span>Training</span>
+        <div class="tooltip">Training</div>
+    </a>
+    <a href="succession.php">
+        <i class="bi bi-tree"></i> <span>Succession</span>
+        <div class="tooltip">Succession</div>
+    </a>
+    <a href="ess.php">
+        <i class="bi bi-pencil-square"></i> <span>ESS</span>
+        <div class="tooltip">ESS</div>
+    </a>
+    <a href="../../../logout.php">
+        <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+        <div class="tooltip">Logout</div>
+    </a>
+</nav>
+
+    </nav>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+    <div class="main-inner">
+        <div class="header">
+            <h2>Available Training Sessions</h2>
+            <p>Browse and enroll in available trainings below.</p>
+        </div>
+
+        <?php if (!empty($message)) echo "<div class='message'>".htmlspecialchars($message)."</div>"; ?>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Trainer</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Location</th>
+                    <th>Capacity</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (count($sessions) > 0): ?>
+                    <?php foreach ($sessions as $s): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($s['title']) ?></td>
+                            <td><?= htmlspecialchars($s['trainer']) ?></td>
+                            <td><?= htmlspecialchars($s['start_datetime']) ?></td>
+                            <td><?= htmlspecialchars($s['end_datetime']) ?></td>
+                            <td><?= htmlspecialchars($s['location']) ?></td>
+                            <td><?= htmlspecialchars($s['capacity']) ?></td>
+                            <td><?= $s['enrolled'] ? 'Enrolled' : 'Not Enrolled' ?></td>
+                            <td>
+                                <?php if (!$s['enrolled']): ?>
+                                    <a href="?enroll=<?= urlencode($s['training_id']) ?>" class="enroll-btn">Enroll</a>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr><td colspan="8" style="text-align:center;">No training sessions found.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
-<div class="container">
-    <h2>Available Training Sessions</h2>
-
-    <?php if (!empty($message)) echo "<div class='message'>".htmlspecialchars($message)."</div>"; ?>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Trainer</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Location</th>
-                <th>Capacity</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (count($sessions) > 0): ?>
-                <?php foreach ($sessions as $s): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($s['title']) ?></td>
-                        <td><?= htmlspecialchars($s['trainer']) ?></td>
-                        <td><?= htmlspecialchars($s['start_datetime']) ?></td>
-                        <td><?= htmlspecialchars($s['end_datetime']) ?></td>
-                        <td><?= htmlspecialchars($s['location']) ?></td>
-                        <td><?= htmlspecialchars($s['capacity']) ?></td>
-                        <td><?= $s['enrolled'] ? 'Enrolled' : 'Not Enrolled' ?></td>
-                        <td>
-                            <?php if (!$s['enrolled']): ?>
-                                <a href="?enroll=<?= urlencode($s['training_id']) ?>" class="enroll-btn">Enroll</a>
-                            <?php else: ?>
-                                -
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <tr><td colspan="8" style="text-align:center;">No training sessions found.</td></tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
-</div>
+<!-- SIDEBAR COLLAPSE SCRIPT -->
+<script>
+    const sidebar = document.getElementById('sidebar');
+    sidebar.addEventListener('mouseenter', () => {
+        if (window.innerWidth > 768 && sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+        }
+    });
+    sidebar.addEventListener('mouseleave', () => {
+        if (window.innerWidth > 768) {
+            sidebar.classList.add('collapsed');
+        }
+    });
+    if (window.innerWidth > 768) {
+        sidebar.classList.add('collapsed');
+    }
+    document.addEventListener('click', (e) => {
+        const toggle = document.querySelector('.menu-toggle');
+        if (!sidebar.contains(e.target) && (!toggle || !toggle.contains(e.target))) {
+            sidebar.classList.remove('show');
+        }
+    });
+</script>
 </body>
 </html>
