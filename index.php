@@ -348,14 +348,14 @@
 <!-- Mobile Topbar -->
 <div class="topbar">
     <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('show')">☰</button>
-    <div class="title">HR2 Employee</div>
+    
 </div>
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <div class="logo">
         <img src="logo/deamns.png" alt="HR2 Logo">
-        <div class="logo-text">HR2 Employee</div>
+       
     </div>
 
     <nav>

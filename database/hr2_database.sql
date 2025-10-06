@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 06, 2025 at 07:23 AM
+-- Generation Time: Oct 06, 2025 at 09:01 AM
 -- Server version: 10.4.6-MariaDB
 -- PHP Version: 7.2.21
 
@@ -87,10 +87,32 @@ CREATE TABLE `competencies` (
 --
 
 INSERT INTO `competencies` (`id`, `code`, `title`, `description`, `competency_group`, `created_at`) VALUES
-(1, '', 'credit risk assessment', 'to assess the credit risks', NULL, '2025-10-05 03:29:15'),
 (2, 'COMP001', 'lebron james', 'to become a lebrom james', 'leadership', '2025-10-05 03:34:06'),
-(3, 'COMP002', 'being dominant', 'dominant carrer', 'leadership', '2025-10-05 11:53:25'),
 (4, 'COMP003', 'being dominant', 'dominant carrer', 'leadership', '2025-10-05 11:53:25');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `competencies_archive`
+--
+
+CREATE TABLE `competencies_archive` (
+  `id` int(11) NOT NULL,
+  `code` varchar(50) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `competency_group` varchar(100) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `competencies_archive`
+--
+
+INSERT INTO `competencies_archive` (`id`, `code`, `title`, `description`, `competency_group`, `created_at`, `deleted_at`) VALUES
+(1, '', 'credit risk assessment', 'to assess the credit risks', NULL, '2025-10-05 11:29:15', '2025-10-06 14:30:50'),
+(2, 'COMP002', 'being dominant', 'dominant carrer', 'leadership', '2025-10-05 19:53:25', '2025-10-06 14:32:06');
 
 -- --------------------------------------------------------
 
@@ -293,6 +315,20 @@ INSERT INTO `succession_positions` (`id`, `branch_id`, `position_title`, `critic
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `succession_positions_archive`
+--
+
+CREATE TABLE `succession_positions_archive` (
+  `id` int(11) NOT NULL,
+  `position_title` varchar(255) DEFAULT NULL,
+  `branch_id` varchar(50) DEFAULT NULL,
+  `criticality` varchar(50) DEFAULT NULL,
+  `deleted_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `successor_candidates`
 --
 
@@ -301,16 +337,42 @@ CREATE TABLE `successor_candidates` (
   `branch_id` varchar(100) NOT NULL,
   `employee_id` varchar(100) NOT NULL,
   `readiness` varchar(100) NOT NULL,
-  `development_plan` varchar(100) NOT NULL
+  `effective_at` date DEFAULT NULL,
+  `development_plan` varchar(100) NOT NULL,
+  `created_at` timestamp(5) NOT NULL DEFAULT current_timestamp(5),
+  `updated_at` timestamp(5) NOT NULL DEFAULT current_timestamp(5)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `successor_candidates`
 --
 
-INSERT INTO `successor_candidates` (`id`, `branch_id`, `employee_id`, `readiness`, `development_plan`) VALUES
-(3, 'BR-0001', 'EMP-2025-0541F', 'ready', 'galinfg'),
-(4, 'BR705C31', 'EMP-2025-F45A4', 'ready', 'you are the next tagapagmana');
+INSERT INTO `successor_candidates` (`id`, `branch_id`, `employee_id`, `readiness`, `effective_at`, `development_plan`, `created_at`, `updated_at`) VALUES
+(3, 'BR-0001', 'EMP-2025-0541F', 'ready', NULL, 'galinfg', '2025-10-06 05:34:05.35244', '2025-10-06 05:34:05.35244'),
+(5, 'BR705C31', 'EMP-2025-F45A4', 'ready', '2025-10-24', 'magiging tagapagmana ka boss', '2025-10-06 06:48:20.36731', '2025-10-06 06:48:20.36731');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `successor_candidates_archive`
+--
+
+CREATE TABLE `successor_candidates_archive` (
+  `id` int(11) NOT NULL,
+  `branch_id` varchar(50) DEFAULT NULL,
+  `employee_id` varchar(50) DEFAULT NULL,
+  `readiness` varchar(50) DEFAULT NULL,
+  `effective_at` date DEFAULT NULL,
+  `development_plan` text DEFAULT NULL,
+  `deleted_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `successor_candidates_archive`
+--
+
+INSERT INTO `successor_candidates_archive` (`id`, `branch_id`, `employee_id`, `readiness`, `effective_at`, `development_plan`, `deleted_at`) VALUES
+(1, 'BR705C31', 'EMP-2025-F45A4', 'ready', NULL, 'you are the next tagapagmana', '2025-10-06 06:55:21');
 
 -- --------------------------------------------------------
 
@@ -360,8 +422,33 @@ CREATE TABLE `training_sessions` (
 --
 
 INSERT INTO `training_sessions` (`id`, `training_id`, `title`, `description`, `start_datetime`, `end_datetime`, `location`, `trainer`, `capacity`, `created_at`, `updated_at`) VALUES
-(8, 'TRN-0001', 'how to wash hands', 'teaching you proper wash hands', '2025-10-05 12:06:00', '2025-10-05 14:06:00', 'virtual', 'lebron james', 30, '2025-10-05 04:06:17', '2025-10-05 04:06:17'),
 (9, 'TRN-0000', 'becoming who you are', 'overcoming fears', '2025-10-05 19:54:00', '2025-10-05 20:54:00', 'company gym', 'stephen curry', 20, '2025-10-05 11:54:41', '2025-10-05 11:54:41');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `training_sessions_archive`
+--
+
+CREATE TABLE `training_sessions_archive` (
+  `id` int(11) NOT NULL,
+  `training_id` varchar(50) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `start_datetime` datetime DEFAULT NULL,
+  `end_datetime` datetime DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `trainer` varchar(255) DEFAULT NULL,
+  `capacity` int(11) DEFAULT NULL,
+  `archived_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `training_sessions_archive`
+--
+
+INSERT INTO `training_sessions_archive` (`id`, `training_id`, `title`, `description`, `start_datetime`, `end_datetime`, `location`, `trainer`, `capacity`, `archived_at`) VALUES
+(1, 'TRN-0001', 'how to wash hands', 'teaching you proper wash hands', '2025-10-05 12:06:00', '2025-10-05 14:06:00', 'virtual', 'lebron james', 30, '2025-10-06 14:37:05');
 
 --
 -- Indexes for dumped tables
@@ -383,6 +470,12 @@ ALTER TABLE `branches`
 -- Indexes for table `competencies`
 --
 ALTER TABLE `competencies`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `competencies_archive`
+--
+ALTER TABLE `competencies_archive`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -434,9 +527,21 @@ ALTER TABLE `succession_positions`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `succession_positions_archive`
+--
+ALTER TABLE `succession_positions_archive`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `successor_candidates`
 --
 ALTER TABLE `successor_candidates`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `successor_candidates_archive`
+--
+ALTER TABLE `successor_candidates_archive`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -449,6 +554,12 @@ ALTER TABLE `training_enrolls`
 -- Indexes for table `training_sessions`
 --
 ALTER TABLE `training_sessions`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `training_sessions_archive`
+--
+ALTER TABLE `training_sessions_archive`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -472,6 +583,12 @@ ALTER TABLE `branches`
 --
 ALTER TABLE `competencies`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `competencies_archive`
+--
+ALTER TABLE `competencies_archive`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `courses`
@@ -522,10 +639,22 @@ ALTER TABLE `succession_positions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT for table `succession_positions_archive`
+--
+ALTER TABLE `succession_positions_archive`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `successor_candidates`
 --
 ALTER TABLE `successor_candidates`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `successor_candidates_archive`
+--
+ALTER TABLE `successor_candidates_archive`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `training_enrolls`
@@ -538,6 +667,12 @@ ALTER TABLE `training_enrolls`
 --
 ALTER TABLE `training_sessions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `training_sessions_archive`
+--
+ALTER TABLE `training_sessions_archive`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
