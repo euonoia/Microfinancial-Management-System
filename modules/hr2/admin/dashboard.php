@@ -136,7 +136,7 @@ foreach ($tables as $table => $label) {
 
     <div class="container">
         <div class="header">
-            <h2>Welcome, <?= htmlspecialchars($adminData['full_name']) ?> 👋</h2>
+            <h2>Welcome, <?= htmlspecialchars($adminData['full_name']) ?> </h2>
             <p>Here’s a quick overview of the HR2 system modules:</p>
         </div>
 

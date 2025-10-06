@@ -46,13 +46,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_training'])) {
     exit();
 }
 
-// --- DELETE TRAINING SESSION ---
+// --- ARCHIVE TRAINING SESSION (Soft Delete) ---
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
+
+    // Move the record to archive table before deleting
+    $conn->query("
+        INSERT INTO training_sessions_archive 
+        (training_id, title, description, start_datetime, end_datetime, location, trainer, capacity)
+        SELECT training_id, title, description, start_datetime, end_datetime, location, trainer, capacity
+        FROM training_sessions
+        WHERE id = $id
+    ");
+
+    // Delete the record from main table
     $conn->query("DELETE FROM training_sessions WHERE id = $id");
+
     header("Location: training.php");
     exit();
 }
+
 
 // --- FETCH TRAINING SESSIONS WITH ATTENDEES COUNT ---
 $query = "
@@ -165,7 +178,7 @@ if ($res) $trainers = $res->fetch_all(MYSQLI_ASSOC);
                             <td><?= htmlspecialchars($s['capacity']) ?></td>
                             <td><?= htmlspecialchars($s['attendees']) ?></td>
                             <td>
-                                <a href="?delete=<?= $s['id'] ?>" class="btn-del" onclick="return confirm('Delete this training session?')">Delete</a>
+                                <a href="?delete=<?= $s['id'] ?>" class="btn-del" onclick="return confirm('Archive this training session?')">Archive</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

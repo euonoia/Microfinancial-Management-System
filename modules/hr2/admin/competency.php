@@ -42,13 +42,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_competency'])) {
     exit();
 }
 
-// --- Handle Delete Competency ---
+// --- Handle Archive Competency (Soft Delete) ---
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
+
+    // Move the record to archive table
+    $conn->query("
+        INSERT INTO competencies_archive (code, title, description, competency_group, created_at)
+        SELECT code, title, description, competency_group, created_at
+        FROM competencies
+        WHERE id = $id
+    ");
+
+    // Delete from main table
     $conn->query("DELETE FROM competencies WHERE id = $id");
+
     header("Location: competency.php");
     exit();
 }
+
 
 // --- Fetch Competencies ---
 $result = $conn->query("SELECT * FROM competencies ORDER BY created_at DESC");
@@ -128,7 +140,7 @@ a.btn-del:hover { text-decoration: underline; }
                         <td><?= htmlspecialchars($c['title']) ?></td>
                         <td><?= htmlspecialchars($c['competency_group']) ?></td>
                         <td><?= htmlspecialchars($c['created_at']) ?></td>
-                        <td><a href="?delete=<?= $c['id'] ?>" class="btn-del" onclick="return confirm('Delete this competency?')">Delete</a></td>
+                        <td><a href="?delete=<?= $c['id'] ?>" class="btn-del" onclick="return confirm('Archive this competency?')">Archive</a></td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>

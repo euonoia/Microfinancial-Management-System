@@ -35,19 +35,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_position'])) {
 }
 
 
+
 // --- ADD CANDIDATE ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_candidate'])) {
     $branch_id = $_POST['position_id']; // branch_id from dropdown
     $employee_id = $_POST['employee_id']; // varchar company employee_id
     $readiness = $_POST['readiness'];
+    $effective_at = $_POST['effective_at']; // new field
     $development_plan = trim($_POST['development_plan']);
 
     if ($branch_id !== '' && $employee_id !== '') {
         $stmt = $conn->prepare("
-            INSERT INTO successor_candidates (branch_id, employee_id, readiness, development_plan)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO successor_candidates (branch_id, employee_id, readiness, effective_at, development_plan)
+            VALUES (?, ?, ?, ?, ?)
         ");
-        $stmt->bind_param("ssss", $branch_id, $employee_id, $readiness, $development_plan);
+        $stmt->bind_param("sssss", $branch_id, $employee_id, $readiness, $effective_at, $development_plan);
         $stmt->execute();
         $stmt->close();
     }
@@ -56,21 +58,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_candidate'])) {
     exit();
 }
 
-// --- DELETE POSITION ---
+
+// --- DELETE POSITION (ARCHIVE INSTEAD) ---
 if (isset($_GET['delete_position'])) {
     $id = intval($_GET['delete_position']);
-    $conn->query("DELETE FROM succession_positions WHERE id = $id");
+
+    // Fetch position data before deleting
+    $res = $conn->query("SELECT * FROM succession_positions WHERE id = $id");
+    if ($res && $res->num_rows > 0) {
+        $pos = $res->fetch_assoc();
+
+        // Insert into archive
+        $stmt = $conn->prepare("
+            INSERT INTO succession_positions_archive (position_title, branch_id, criticality)
+            VALUES (?, ?, ?)
+        ");
+        $stmt->bind_param("sss", $pos['position_title'], $pos['branch_id'], $pos['criticality']);
+        $stmt->execute();
+        $stmt->close();
+
+        // Then delete
+        $conn->query("DELETE FROM succession_positions WHERE id = $id");
+    }
+
     header("Location: succession.php");
     exit();
 }
 
-// --- DELETE CANDIDATE ---
+
+// --- DELETE CANDIDATE (ARCHIVE INSTEAD) ---
 if (isset($_GET['delete_candidate'])) {
     $id = intval($_GET['delete_candidate']);
-    $conn->query("DELETE FROM successor_candidates WHERE id = $id");
+
+    // Fetch candidate data before deleting
+    $res = $conn->query("SELECT * FROM successor_candidates WHERE id = $id");
+    if ($res && $res->num_rows > 0) {
+        $cand = $res->fetch_assoc();
+
+        // Insert into archive
+        $stmt = $conn->prepare("
+            INSERT INTO successor_candidates_archive (branch_id, employee_id, readiness, effective_at, development_plan)
+            VALUES (?, ?, ?, ?, ?)
+        ");
+        $stmt->bind_param("sssss", $cand['branch_id'], $cand['employee_id'], $cand['readiness'], $cand['effective_at'], $cand['development_plan']);
+        $stmt->execute();
+        $stmt->close();
+
+        // Then delete
+        $conn->query("DELETE FROM successor_candidates WHERE id = $id");
+    }
+
     header("Location: succession.php");
     exit();
 }
+
+
+
 
 // --- FETCH POSITIONS ---
 $positionsQuery = "
@@ -185,7 +228,7 @@ a.btn-del:hover { text-decoration: underline; }
         <td><?= htmlspecialchars($p['branch_id']) ?></td>
         <td><?= htmlspecialchars(ucfirst($p['criticality'])) ?></td>
         <td><?= htmlspecialchars($p['candidate_count']) ?></td>
-        <td><a href="?delete_position=<?= $p['id'] ?>" class="btn-del" onclick="return confirm('Delete this position?')">Delete</a></td>
+        <td><a href="?delete_position=<?= $p['id'] ?>" class="btn-del" onclick="return confirm('Archive this position?')">Archive</a></td>
     </tr>
     <?php endforeach; ?>
 <?php else: ?>
@@ -194,9 +237,9 @@ a.btn-del:hover { text-decoration: underline; }
 </tbody>
 </table>
 
-<!-- Add Candidate -->
 <form method="POST" style="margin-top:40px;">
 <h3>Add Candidate to Position</h3>
+
 <label>Position:</label>
 <select name="position_id" required>
     <option value="">-- Select Position --</option>
@@ -219,9 +262,13 @@ a.btn-del:hover { text-decoration: underline; }
     <option value="not_ready">Not Ready</option>
 </select>
 
+<label>Effective At:</label>
+<input type="date" name="effective_at" required>
+
 <textarea name="development_plan" placeholder="Development Plan (optional)"></textarea>
 <button type="submit" name="add_candidate">Add Candidate</button>
 </form>
+
 
 <!-- Candidate List -->
 <h3 class="section-title">Succession Candidates</h3>
@@ -232,8 +279,10 @@ a.btn-del:hover { text-decoration: underline; }
     <th>Employee Name</th>
     <th>Employee ID</th>
     <th>Readiness</th>
+    <th>Effective At</th>
     <th>Development Plan</th>
     <th>Action</th>
+
 </tr>
 </thead>
 <tbody>
@@ -244,8 +293,9 @@ a.btn-del:hover { text-decoration: underline; }
         <td><?= htmlspecialchars($c['first_name'] . ' ' . $c['last_name']) ?></td>
         <td><?= htmlspecialchars($c['company_id']) ?></td>
         <td><?= htmlspecialchars(ucfirst($c['readiness'])) ?></td>
+        <td><?= htmlspecialchars($c['effective_at']) ?></td>
         <td><?= htmlspecialchars($c['development_plan']) ?></td>
-        <td><a href="?delete_candidate=<?= $c['id'] ?>" class="btn-del" onclick="return confirm('Delete this candidate?')">Delete</a></td>
+        <td><a href="?delete_candidate=<?= $c['id'] ?>" class="btn-del" onclick="return confirm('Archive this candidate?')">Archive</a></td>
     </tr>
     <?php endforeach; ?>
 <?php else: ?>

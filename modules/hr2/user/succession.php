@@ -29,6 +29,7 @@ SELECT
     p.branch_id,
     p.criticality,
     c.readiness,
+    c.effective_at,
     c.development_plan
 FROM successor_candidates c
 JOIN succession_positions p ON p.branch_id = c.branch_id
@@ -89,6 +90,7 @@ $stmt->close();
             <th>Branch</th>
             <th>Criticality</th>
             <th>Readiness</th>
+            <th>Effective At</th>
             <th>Development Plan</th>
         </tr>
         </thead>
@@ -100,6 +102,7 @@ $stmt->close();
                     <td><?= htmlspecialchars($pos['branch_id']) ?></td>
                     <td><?= htmlspecialchars(ucfirst($pos['criticality'])) ?></td>
                     <td><?= htmlspecialchars(ucfirst($pos['readiness'])) ?></td>
+                    <td><?= htmlspecialchars($pos['effective_at']) ?></td>
                     <td><?= htmlspecialchars($pos['development_plan']) ?></td>
                 </tr>
             <?php endforeach; ?>
