@@ -37,11 +37,7 @@ $competencies = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<!-- Mobile Topbar -->
-<div class="topbar">
-    <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('show')">☰</button>
-    
-</div>
+
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
     <div class="logo">

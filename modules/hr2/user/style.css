@@ -96,6 +96,39 @@ body {
 
 .collapsed nav a span { opacity: 0; visibility: hidden; }
 
+/* --- TOPBAR FOR MOBILE (Enhanced) --- */
+.topbar {
+    display: none;
+    background: var(--primary);
+    color: #fff;
+    padding: 15px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 200; /* above sidebar */
+}
+
+.menu-toggle {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.topbar .title {
+    font-weight: 600;
+    color: #fff;
+    font-size: 18px;
+}
+
 /* --- MAIN CONTENT --- */
 .main {
     margin-left: 240px;
@@ -327,4 +360,41 @@ tr:hover { background: #f9fafb; }
     .card p { font-size: 24px; }
     .card h3 { font-size: 14px; }
     .sidebar nav a { font-size: 13px; padding: 10px 20px; }
+}
+/* --- SIDEBAR MOBILE BEHAVIOR --- */
+@media (max-width: 768px) {
+    body { flex-direction: column; overflow-x: hidden; }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -260px;
+        width: 240px;
+        height: 100%;
+        background: var(--primary);
+        color: #fff;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        transition: left 0.3s ease;
+        z-index: 150;
+    }
+
+    .sidebar.show { left: 0; }
+
+    .sidebar nav a {
+        color: #fff;
+    }
+
+    .sidebar nav a:hover, .sidebar nav a.active {
+        background: var(--accent);
+        color: #fff;
+    }
+
+    .main {
+        margin-left: 0 !important;
+        padding-top: 70px; /* space for fixed topbar */
+    }
+
+    .topbar { display: flex; }
+
+    .tooltip { display: none; }
 }
