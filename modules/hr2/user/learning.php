@@ -59,6 +59,7 @@ SELECT
     c.title, 
     c.duration_minutes,
     c.created_at,
+    c.content_url,
     CASE WHEN ce.id IS NULL THEN 0 ELSE 1 END AS enrolled,
     ce.employee_id AS enrolled_employee_code
 FROM courses c
@@ -163,7 +164,11 @@ $stmt->close();
                                 <?php if (!$c['enrolled']): ?>
                                     <a href="?enroll=<?= urlencode($c['course_id']) ?>" class="enroll-btn">Enroll</a>
                                 <?php else: ?>
-                                    -
+                                    <?php if (!empty($c['content_url'])): ?>
+                                        <a href="<?= htmlspecialchars($c['content_url']) ?>" target="_blank" class="view-btn">View Content</a>
+                                    <?php else: ?>
+                                        <em>No content available</em>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </td>
                         </tr>
