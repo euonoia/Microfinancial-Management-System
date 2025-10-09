@@ -1,5 +1,5 @@
 <?php
-session_name('HR2_EMPLOYEE'); // <- Unique session for employees
+session_name('HR2_EMPLOYEE'); 
 session_start();
 include('config/database.php');
 
@@ -27,11 +27,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $user = $result->fetch_assoc();
 
             if (password_verify($password, $user['password'])) {
-                // Set session
                 $_SESSION['employee_id'] = $user['id'];
                 $_SESSION['employee_name'] = $user['name'];
                 $_SESSION['role'] = $user['role'];
-
                 header("Location: index.php");
                 exit();
             } else {
@@ -50,129 +48,108 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <link rel="icon" href="logo/deamns.png">
     <title>Login | Microfinance HR2</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-    body {
-        background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    /* Header */
-    .header {
-        width: 100%;
-        padding: 15px 20px;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        z-index: 1000;
-    }
-
-    .header img {
-        width: 120px;
-        height: 120px;
-        object-fit: contain;
-    }
-
-    /* Main container */
-    .main-container {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    /* Card styling */
-    .card {
-        width: 100%;
-        max-width: 400px;
-        margin: 20px;
-        border-radius: 20px;
-        border: none;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        background: #ffffff;
-        padding: 30px 25px;
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    }
-
-    .card h4 {
-        font-weight: 600;
-        margin-bottom: 25px;
-        color: #333;
-    }
-
-    .form-control:focus {
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        border-color: #007bff;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #4a90e2, #357ab7);
-        border: none;
-        font-weight: 600;
-        transition: all 0.3s;
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #357ab7, #4a90e2);
-    }
-
-    .text-muted a {
-        color: #357ab7;
-        text-decoration: none;
-        font-weight: 500;
-    }
-
-    .text-muted a:hover {
-        text-decoration: underline;
-    }
-</style>
-
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
-    <!-- Header with Logo -->
-    <div class="header">
-        <img src="logo/deamns.png" alt="Microfinance HR2 Logo">
+    <div class="bg-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
     </div>
 
-    <!-- Main content -->
-    <div class="main-container">
-        <div class="card shadow-lg border-0 rounded-3">
-            <div class="card-body text-center">
-                <h4 class="mb-4">Login</h4>
-
-                <?php if ($message): ?>
-                    <div class="alert alert-danger py-2 text-center">
-                        <?= htmlspecialchars($message) ?>
-                    </div>
-                <?php endif; ?>
-
-                <form method="POST" action="">
-                    <div class="mb-3 text-start">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" name="email" class="form-control" required>
-                    </div>
-                    <div class="mb-3 text-start">
-                        <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
-                </form>
-
-                <div class="text-center mt-3">
-                    <small class="text-muted">Don't have an account? <a href="register.php">Register</a></small>
-                </div>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-logo">
+               <img src="logo/deamns.png" alt="">
             </div>
+            <h1 class="login-title">Microfinance HR2</h1>
+            <p class="login-subtitle">Please sign in to continue</p>
+        </div>
+
+        <?php if ($message): ?>
+        <div class="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <?= htmlspecialchars($message) ?>
+        </div>
+        <?php endif; ?>
+
+        <form method="POST" action="">
+            <div class="form-group">
+                <label class="form-label"><i class="fas fa-envelope"></i> Email Address</label>
+                <input type="email" name="email" class="form-control" required placeholder="Enter your email">
+                <i class="fas fa-user input-icon"></i>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label"><i class="fas fa-lock"></i> Password</label>
+                <input type="password" name="password" class="form-control" required placeholder="Enter your password">
+                <i class="fas fa-lock input-icon"></i>
+            </div>
+
+            <button type="submit" class="btn-login">
+                <i class="fas fa-sign-in-alt"></i> Login
+                <div class="loading"></div>
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <small>Don't have an account? <a href="register.php">Register</a></small>
         </div>
     </div>
+
+<script>
+        // 3D Interactive Effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.login-container');
+            const form = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const loading = document.querySelector('.loading');
+
+            // Mouse movement 3D effect
+            document.addEventListener('mousemove', function(e) {
+                const x = (e.clientX / window.innerWidth) * 100;
+                const y = (e.clientY / window.innerHeight) * 100;
+                
+                container.style.transform = `
+                    translateY(-5px) 
+                    rotateX(${(y - 50) * 0.1}deg) 
+                    rotateY(${(x - 50) * 0.1}deg)
+                `;
+            });
+
+            // Reset transform on mouse leave
+            document.addEventListener('mouseleave', function() {
+                container.style.transform = 'translateY(-5px) rotateX(5deg)';
+            });
+
+            // Form submission with loading animation
+            form.addEventListener('submit', function(e) {
+                loginBtn.style.opacity = '0.7';
+                loading.style.display = 'block';
+                loginBtn.disabled = true;
+            });
+
+            // Input focus effects
+            const inputs = document.querySelectorAll('.form-control');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add floating animation to background shapes
+            const shapes = document.querySelectorAll('.shape');
+            shapes.forEach((shape, index) => {
+                shape.style.animationDelay = `${index * 0.5}s`;
+            });
+        });
+    </script>
 </body>
 </html>
